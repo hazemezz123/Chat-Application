@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { handleServerError } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
+
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
 
@@ -46,7 +47,6 @@ export const signup = async (req, res) => {
     handleServerError(res, error, "Sign Controller");
   }
 };
-
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -70,7 +70,6 @@ export const login = async (req, res) => {
     handleServerError(res, error, "Login Controller");
   }
 };
-
 export const logout = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
@@ -79,7 +78,6 @@ export const logout = (req, res) => {
     handleServerError(res, error, "logout Controller");
   }
 };
-
 export const updateProfile = async (req, res) => {
   try {
     const { profilePic } = req.body;

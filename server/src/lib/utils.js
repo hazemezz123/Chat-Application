@@ -12,7 +12,8 @@ export const generateToken = (userId, res) => {
   });
   return token;
 };
-export const handleServerError = (res, error, context = "") => {
-  console.error(`${context} Error:`, error.message);
+
+export const handleServerError = (res, error, context = "Unknown") => {
+  console.error(`${context} Error:`, error?.message || error);
   return res.status(500).json({ message: "Internal Server Error" });
 };
