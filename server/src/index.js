@@ -15,7 +15,7 @@ app.use(
   })
 );
 app.use("/api/auth", authRoutes);
-app.use("/api/message", messageRoutes);
+app.use("/api/messages", messageRoutes);
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
