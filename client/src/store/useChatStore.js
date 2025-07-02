@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
+import { AArrowDown } from "lucide-react";
 
-export const useChatStore = create((set) => ({
-  message: [],
+export const useChatStore = create((set, get) => ({
+  messages: [],
   users: [],
   selectedUser: null,
-  isUsersLoading: true,
+  isUsersLoading: false,
   isMessageLoading: false,
 
   getUsers: async () => {
@@ -33,5 +34,17 @@ export const useChatStore = create((set) => ({
     }
   },
   // optimize this one letter
+  sendMessage: async (messageData) => {
+    const { messages, selectedUser } = get();
+    try {
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedUser._id} `,
+        messageData
+      );
+      set({ messages: [...messages, res.data] });
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  },
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
