@@ -5,7 +5,7 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
-const app = express();
+import { app, server } from "./lib/socket.js";
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`The Server is running on PORT ${PORT}`);
     });
   })
