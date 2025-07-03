@@ -24,7 +24,7 @@ const Sidebar = () => {
   return (
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 max-lg:justify-center">
           <Users className="size-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
@@ -68,7 +68,8 @@ const Sidebar = () => {
               />
               {onlineUsers.includes(user._id) && (
                 <span
-                  className="absolute bottom-0 right-0 size-3 bg-green-500 
+                  className="absolute bottom-0 right-0 size-3 bg-green-500
+                  animate-pulse 
                   rounded-full ring-2 ring-zinc-900"
                 />
               )}

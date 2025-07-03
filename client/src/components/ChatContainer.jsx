@@ -8,8 +8,14 @@ import { formatMessageTime } from "../lib/utils";
 import { MessageCircle } from "lucide-react";
 
 const ChatContainer = () => {
-  const { messages, getMessages, isMessageLoading, selectedUser } =
-    useChatStore();
+  const {
+    messages,
+    getMessages,
+    isMessageLoading,
+    selectedUser,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
@@ -20,10 +26,17 @@ const ChatContainer = () => {
 
   useEffect(() => {
     // Only fetch messages if a user is selected
+    subscribeToMessages();
     if (selectedUser?._id) {
       getMessages(selectedUser._id);
     }
-  }, [selectedUser?._id, getMessages]);
+    return () => unsubscribeFromMessages();
+  }, [
+    selectedUser?._id,
+    getMessages,
+    unsubscribeFromMessages,
+    subscribeToMessages,
+  ]);
 
   if (isMessageLoading) {
     return (

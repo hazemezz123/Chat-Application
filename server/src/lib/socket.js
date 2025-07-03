@@ -6,6 +6,9 @@ const app = express();
 
 const server = http.createServer(app);
 
+export function getReceiverSocketId(userId) {
+  return userSocketMap[userId];
+}
 const userSocketMap = {}; //
 const io = new Server(server, {
   cors: {
