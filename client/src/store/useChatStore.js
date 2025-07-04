@@ -61,14 +61,6 @@ export const useChatStore = create((set, get) => ({
         set({
           messages: [...get().messages, newMessage],
         });
-      } else {
-        // Show a toast if the message is for the logged-in user but not the selected chat
-        const authUser = useAuthStore.getState().user;
-        if (newMessage.receiverId === authUser._id) {
-          toast.success(
-            `New message from ${newMessage.senderName || "a user"}`
-          );
-        }
       }
     });
   },
