@@ -6,7 +6,9 @@ import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import { app, server } from "./lib/socket.js";
+import path from "path";
 
+const __dirname = path.resolve();
 // Increase payload size limit for JSON and URL-encoded bodies to 10MB
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));

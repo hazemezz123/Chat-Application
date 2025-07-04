@@ -52,6 +52,7 @@ export const useChatStore = create((set, get) => ({
     const { selectedUser } = get();
     if (!selectedUser) return;
     const socket = useAuthStore.getState().socket;
+    // optimize
     socket.on("newMessage", (newMessage) => {
       // Always add the message if it's for the selected chat
       if (
