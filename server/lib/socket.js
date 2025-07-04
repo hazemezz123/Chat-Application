@@ -1,34 +1,59 @@
 import { Server } from "socket.io";
-import http from "http";
-import express from "express";
 
-const app = express();
+let io;
 
-const server = http.createServer(app);
+const userSocketMap = {}; // {userId: socketId}
 
-export function getReceiverSocketId(userId) {
-  return userSocketMap[userId];
-}
-const userSocketMap = {}; //
-const io = new Server(server, {
-  cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://chat-application-khaki-phi.vercel.app",
-    ],
-  },
-});
-
-io.on("connection", (socket) => {
-  console.log("A user is Connected", socket.id);
-  const userId = socket.handshake.query.userId;
-  if (userId) userSocketMap[userId] = socket.id;
-
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
-  socket.on("disconnect", () => {
-    console.log("A user disconnected", socket.id);
-    delete userSocketMap[userId];
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+export const initSocket = (server) => {
+  io = new Server(server, {
+    cors: {
+      origin: [
+        "http://localhost:5173",
+        "https://chat-application-khaki-phi.vercel.app",
+      ],
+      credentials: true,
+    },
+    // Add transports for better compatibility with serverless environments like Vercel
+    transports: ["websocket", "polling"],
   });
-});
-export { io, app, server };
+
+  io.on("connection", (socket) => {
+    console.log("A user is connected:", socket.id);
+    const userId = socket.handshake.query.userId;
+
+    if (userId && userId !== "undefined") {
+      userSocketMap[userId] = socket.id;
+    }
+
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+    socket.on("disconnect", () => {
+      console.log("A user disconnected:", socket.id);
+      // On disconnect, find which user it was and remove them
+      let disconnectedUserId;
+      for (const [uid, sid] of Object.entries(userSocketMap)) {
+        if (sid === socket.id) {
+          disconnectedUserId = uid;
+          break;
+        }
+      }
+      if (disconnectedUserId) {
+        delete userSocketMap[disconnectedUserId];
+        io.emit("getOnlineUsers", Object.keys(userSocketMap));
+      }
+    });
+  });
+
+  return io;
+};
+
+export const getIO = () => {
+  if (!io) {
+    throw new Error("Socket.io not initialized!");
+  }
+  return io;
+};
+
+export const getReceiverSocketId = (receiverId) => {
+  return userSocketMap[receiverId];
+};
