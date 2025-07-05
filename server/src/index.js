@@ -17,7 +17,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://chat-application-git-socket-integr-554003-hazemezz123s-projects.vercel.app",
+      "https://chat-application-iota-ten.vercel.app",
     ],
 
     credentials: true,
