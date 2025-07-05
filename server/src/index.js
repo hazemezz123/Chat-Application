@@ -9,6 +9,7 @@ import { app, server } from "./lib/socket.js";
 dotenv.config();
 
 // Increase payload size limit for JSON and URL-encoded bodies to 10MB
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
@@ -22,7 +23,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
 const PORT = process.env.PORT || 5000;
-
+app.get("/", (req, res) => {
+  res.send("Welcome to the Chat Application API");
+});
 connectDB()
   .then(() => {
     server.listen(PORT, () => {
