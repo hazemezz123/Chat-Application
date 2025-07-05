@@ -15,7 +15,11 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://chat-application-git-socket-integr-554003-hazemezz123s-projects.vercel.app",
+    ],
+
     credentials: true,
   })
 );
