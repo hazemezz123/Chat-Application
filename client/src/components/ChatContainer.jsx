@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -18,6 +18,7 @@ const ChatContainer = () => {
   } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
+  const [replyTo, setReplyTo] = useState(null);
 
   // Automatically scroll to the bottom when messages change
   useEffect(() => {
@@ -72,12 +73,33 @@ const ChatContainer = () => {
                   />
                 </div>
               </div>
-              <div className="chat-header mb-1">
+              <div className="chat-header mb-1 flex items-center gap-2">
                 <time className="text-xs opacity-50 ml-1">
                   {formatMessageTime(message.createdAt)}
                 </time>
+                <button
+                  className="text-xs text-blue-500 hover:underline ml-2"
+                  onClick={() => setReplyTo(message)}
+                  title="Reply"
+                >
+                  Reply
+                </button>
               </div>
               <div className="chat-bubble flex flex-col">
+                {message.replyTo && (
+                  <div className="bg-base-200 rounded p-2 mb-1 text-xs text-base-content/70 border-l-4 border-blue-400">
+                    <span className="font-semibold">Replying to:</span>{" "}
+                    {message.replyTo.text ||
+                      (message.replyTo.image ? "[Image]" : "")}
+                    {message.replyTo.image && (
+                      <img
+                        src={message.replyTo.image}
+                        alt="Replied Attachment"
+                        className="sm:max-w-[100px] rounded-md mt-1"
+                      />
+                    )}
+                  </div>
+                )}
                 {message.image && (
                   <img
                     src={message.image}
@@ -104,7 +126,25 @@ const ChatContainer = () => {
           </div>
         </div>
       )}
-      <MessageInput />
+      {/* Show reply preview above input */}
+      {replyTo && (
+        <div className="flex items-center bg-base-200 p-2 rounded mb-2 mx-4">
+          <span className="text-xs text-base-content/70 mr-2">
+            Replying to:
+          </span>
+          <span className="truncate text-xs font-semibold">
+            {replyTo.text || "[Image]"}
+          </span>
+          <button
+            className="ml-auto text-xs text-red-500 hover:underline"
+            onClick={() => setReplyTo(null)}
+            title="Cancel reply"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+      <MessageInput replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
     </div>
   );
 };

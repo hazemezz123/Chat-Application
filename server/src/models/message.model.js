@@ -18,6 +18,14 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    replyTo: {
+      type: {
+        _id: mongoose.Schema.Types.ObjectId,
+        text: String,
+        image: String,
+      },
+      default: null,
+    },
   },
   { timestamps: true }
 );

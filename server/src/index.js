@@ -18,6 +18,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://chat-application-iota-ten.vercel.app",
+      "https://kalemni-chat.vercel.app",
     ],
 
     credentials: true,

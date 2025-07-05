@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
-import { AArrowDown } from "lucide-react";
-import { Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
 
 export const useChatStore = create((set, get) => ({
