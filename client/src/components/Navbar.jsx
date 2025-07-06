@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Settings,
   User,
+  UserCheck,
   Menu,
   X,
   Bell,
@@ -88,6 +89,14 @@ const Navbar = () => {
           >
             <User className="w-5 h-5" />
             <span>Profile</span>
+          </Link>
+          <Link
+            to="/friends"
+            className="btn btn-sm gap-2 w-full sm:w-auto"
+            onClick={() => setMenuOpen(false)}
+          >
+            <UserCheck className="w-5 h-5" />
+            <span>Friends</span>
           </Link>
           <Link
             to="/"

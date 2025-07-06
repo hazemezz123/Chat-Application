@@ -1,13 +1,19 @@
 import { useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { Image, Send, X } from "lucide-react";
+import { useFriendsStore } from "../store/useFriendsStore";
+import { Image, Send, X, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 
 const MessageInput = ({ replyTo, onCancelReply }) => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage, selectedUser } = useChatStore();
+  const { getRelationshipStatus } = useFriendsStore();
+  
+  // Check if the selected user is blocked
+  const relationshipStatus = selectedUser ? getRelationshipStatus(selectedUser._id) : 'none';
+  const isBlocked = relationshipStatus === 'blocked';
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -30,6 +36,13 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
+    
+    // Check if user is blocked
+    if (isBlocked) {
+      toast.error("Cannot send message to blocked user");
+      return;
+    }
+    
     if (!text.trim() && !imagePreview) return;
 
     try {
@@ -54,6 +67,18 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
       console.error("Failed to send message:", error);
     }
   };
+
+  // Show blocked user message
+  if (isBlocked) {
+    return (
+      <div className="p-3 lg:p-4 w-full relative bg-base-100 border-t border-base-300">
+        <div className="flex items-center justify-center p-4 bg-error/10 rounded-lg border border-error/20">
+          <Shield className="w-5 h-5 text-error mr-2" />
+          <span className="text-error font-medium">Cannot send messages to blocked users</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-3 lg:p-4 w-full relative bg-base-100 border-t border-base-300">

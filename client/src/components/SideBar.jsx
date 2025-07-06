@@ -1,25 +1,49 @@
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useFriendsStore } from "../store/useFriendsStore";
 import SidebarSkeleton from "./Skeleton/SideBarSkeleton";
-import { Users } from "lucide-react";
+import FriendActions from "./FriendActions";
+import { Users, UserCheck, Shield } from "lucide-react";
 
 const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
     useChatStore();
 
   const { onlineUsers, authUser, socket } = useAuthStore();
+  const { getFriends, getFriendRequests, getRelationshipStatus } = useFriendsStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const [viewMode, setViewMode] = useState('all'); // 'all', 'friends', 'blocked'
 
   useEffect(() => {
     getUsers();
-  }, [getUsers]);
+    getFriends();
+    getFriendRequests();
+  }, [getUsers, getFriends, getFriendRequests]);
 
-  const filteredUsers = showOnlineOnly
-    ? users.filter((user) => onlineUsers.includes(user._id))
-    : users;
+  // Filter users based on view mode
+  let filteredUsers = users;
+  
+  // Filter by view mode
+  if (viewMode === 'friends') {
+    filteredUsers = users.filter(user => user.relationshipStatus === 'friends');
+  } else if (viewMode === 'blocked') {
+    filteredUsers = users.filter(user => user.relationshipStatus === 'blocked');
+  } else if (viewMode === 'online') {
+    filteredUsers = users.filter((user) => onlineUsers.includes(user._id));
+  }
+  
+  // Additional online filter (deprecated - keeping for backward compatibility)
+  if (showOnlineOnly) {
+    filteredUsers = filteredUsers.filter((user) => onlineUsers.includes(user._id));
+  }
 
   const handleSelectUser = (user) => {
+    // Prevent selecting blocked users
+    if (user.relationshipStatus === 'blocked') {
+      return;
+    }
+    
     setSelectedUser(user);
 
     // Immediately reset unread count in the store
@@ -53,16 +77,30 @@ const Sidebar = () => {
             Contacts
           </span>
         </div>
-        <div className="mt-3 items-center gap-2 flex justify-center lg:justify-start">
-          <label className="cursor-pointer flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={showOnlineOnly}
-              onChange={(e) => setShowOnlineOnly(e.target.checked)}
-              className="toggle toggle-sm toggle-success"
-            />
-            <span className="text-sm">Show online only</span>
-          </label>
+        
+        {/* View Mode Tabs */}
+        <div className="mt-3 flex gap-1 flex-wrap">
+          <button
+            onClick={() => setViewMode('all')}
+            className={`btn btn-xs ${viewMode === 'all' ? 'btn-primary' : 'btn-ghost'}`}
+          >
+            <Users className="w-3 h-3" />
+            All
+          </button>
+          <button
+            onClick={() => setViewMode('friends')}
+            className={`btn btn-xs ${viewMode === 'friends' ? 'btn-primary' : 'btn-ghost'}`}
+          >
+            <UserCheck className="w-3 h-3" />
+            Friends
+          </button>
+          <button
+            onClick={() => setViewMode('online')}
+            className={`btn btn-xs ${viewMode === 'online' ? 'btn-primary' : 'btn-ghost'}`}
+          >
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
+            Online
+          </button>
         </div>
       </div>
 
@@ -71,11 +109,17 @@ const Sidebar = () => {
           <button
             key={user._id}
             onClick={() => handleSelectUser(user)}
+            disabled={user.relationshipStatus === 'blocked'}
             className={`
               w-full p-3 flex items-center gap-3
-              hover:bg-base-300 transition-colors
+              transition-colors
               ${
-                selectedUser?._id === user._id
+                user.relationshipStatus === 'blocked' 
+                  ? "opacity-50 cursor-not-allowed" 
+                  : "hover:bg-base-300"
+              }
+              ${
+                selectedUser?._id === user._id && user.relationshipStatus !== 'blocked'
                   ? "bg-base-300 ring-1 ring-base-300"
                   : ""
               }
@@ -100,10 +144,22 @@ const Sidebar = () => {
             {/* User info - visible on all screens but responsive */}
             <div className="text-left min-w-0 flex-1">
               <div className="font-medium truncate text-base">{user.fullName}</div>
-              <div className="text-sm text-zinc-400">
-                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+              <div className="text-sm text-zinc-400 flex items-center gap-2">
+                <span>{onlineUsers.includes(user._id) ? "Online" : "Offline"}</span>
+                {user.relationshipStatus === 'friends' && (
+                  <UserCheck className="w-3 h-3 text-success" />
+                )}
+                {user.relationshipStatus === 'blocked' && (
+                  <Shield className="w-3 h-3 text-error" />
+                )}
               </div>
             </div>
+            
+            {/* Friend Actions */}
+            <FriendActions 
+              user={user} 
+              relationshipStatus={user.relationshipStatus || getRelationshipStatus(user._id)} 
+            />
           </button>
         ))}
 

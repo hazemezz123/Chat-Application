@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
+import friendsRoutes from "./routes/friends.route.js";
+import settingsRoutes from "./routes/settings.route.js";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import { app, server } from "./lib/socket.js";
@@ -26,6 +28,8 @@ app.use(
 );
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/friends", friendsRoutes);
+app.use("/api/settings", settingsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.get("/", (req, res) => {

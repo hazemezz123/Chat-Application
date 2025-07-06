@@ -7,6 +7,7 @@ import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import AboutPage from "./pages/AboutPage";
+import FriendsPage from "./pages/FriendsPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { useThemeStore } from "./store/useThemeStore";
 import { useEffect } from "react";
@@ -23,13 +24,13 @@ const App = () => {
 
   if (isCheckingAuth && !authUser) {
     return (
-      <div className="flex items-center justify-center min-h-screen min-h-[100dvh]">
+      <div className="flex items-center justify-center  min-h-[100dvh]">
         <Loader className="size-10 animate-spin" />
       </div>
     );
   }
   return (
-    <div data-theme={theme} className="min-h-screen min-h-[100dvh] w-full">
+    <div data-theme={theme} className="min-h-[100dvh] w-full">
       <Navbar />
       <Toaster position="top-right" />
 
@@ -50,6 +51,10 @@ const App = () => {
         <Route
           path="/profile"
           element={authUser ? <ProfilePage /> : <Navigate to={"login"} />}
+        />
+        <Route
+          path="/friends"
+          element={authUser ? <FriendsPage /> : <Navigate to={"login"} />}
         />
         <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={<NotFoundPage />} />

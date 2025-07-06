@@ -47,5 +47,14 @@ io.on("connection", (socket) => {
       console.error("Error marking messages as seen:", err);
     }
   });
+
+  // Friend system socket events
+  socket.on("joinUserRoom", (userId) => {
+    socket.join(`user_${userId}`);
+  });
+
+  socket.on("leaveUserRoom", (userId) => {
+    socket.leave(`user_${userId}`);
+  });
 });
 export { io, app, server };

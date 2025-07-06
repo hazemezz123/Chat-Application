@@ -88,6 +88,20 @@ export const useAuthStore = create((set, get) => ({
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+    
+    // Friend system socket events
+    socket.on("friendRequestReceived", (data) => {
+      // Import friends store dynamically to avoid circular dependency
+      import('./useFriendsStore.js').then(({ useFriendsStore }) => {
+        useFriendsStore.getState().handleFriendRequestReceived(data);
+      });
+    });
+    
+    socket.on("friendRequestAccepted", (data) => {
+      import('./useFriendsStore.js').then(({ useFriendsStore }) => {
+        useFriendsStore.getState().handleFriendRequestAccepted(data);
+      });
+    });
   },
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
