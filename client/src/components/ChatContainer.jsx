@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useChatStore } from "../store/useChatStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
@@ -6,6 +6,7 @@ import MessageSkeleton from "./Skeleton/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 import { MessageCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Debounce helper
 function debounce(fn, delay) {
@@ -21,12 +22,40 @@ const ChatContainer = () => {
     useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const [replyTo, setReplyTo] = useState(null);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [pendingMessages, setPendingMessages] = useState([]);
 
-  // Automatically scroll to the bottom when messages change
+  // Improved scroll to bottom with better UX
+  const scrollToBottom = useCallback((smooth = true, force = false) => {
+    if (messageEndRef.current && (isNearBottom || force)) {
+      messageEndRef.current.scrollIntoView({ 
+        behavior: smooth ? "smooth" : "auto",
+        block: "end"
+      });
+    }
+  }, [isNearBottom]);
+
+  // Check if user is near bottom of messages
+  const handleScroll = useCallback(() => {
+    if (messagesContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+      const isNear = scrollHeight - scrollTop - clientHeight < 150;
+      setIsNearBottom(isNear);
+    }
+  }, []);
+
+  // Scroll to bottom when messages change, but only if user was already near bottom
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      // Always scroll to bottom for new messages from current user or if near bottom
+      if (lastMessage?.senderId === authUser?._id || isNearBottom) {
+        scrollToBottom(true, true);
+      }
+    }
+  }, [messages, scrollToBottom, authUser?._id, isNearBottom]);
 
   useEffect(() => {
     // Only fetch messages if a user is selected
@@ -73,88 +102,101 @@ const ChatContainer = () => {
     <div className="flex-1 flex flex-col overflow-hidden h-full w-full chat-container">
       <ChatHeader />
       {messages.length > 0 ? (
-        <div className="flex-1 overflow-y-auto p-2 lg:p-4 space-y-4 smooth-scroll chat-messages max-w-full">
-          {messages.map((message, index) => (
-            <div
-              key={message._id}
-              className={`chat ${
-                message.senderId === authUser._id ? "chat-end" : "chat-start"
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{
-                duration: 0.3,
-                delay: index * 0.05,
-              }}
-              layout
-            >
-              <div className=" chat-image avatar">
-                <div className="size-10 rounded-full border">
-                  <img
-                    src={
-                      message.senderId === authUser._id
-                        ? authUser.profilePic || "/avatar.png"
-                        : selectedUser.profilePic || "/avatar.png"
-                    }
-                    alt="profile pic"
-                  />
+        <div 
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-2 lg:p-4 space-y-4 smooth-scroll chat-messages max-w-full message-list"
+          onScroll={handleScroll}
+        >
+          <AnimatePresence mode="popLayout">
+            {messages.map((message, index) => (
+              <motion.div
+                key={message._id}
+                className={`chat message-item ${
+                  message.senderId === authUser._id ? "chat-end" : "chat-start"
+                } ${message.isPending ? "message-sending" : ""}`}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{
+                  duration: 0.3,
+                  delay: Math.min(index * 0.02, 0.1),
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 25
+                }}
+                layout
+              >
+                <div className="chat-image avatar">
+                  <div className="size-10 rounded-full border">
+                    <img
+                      src={
+                        message.senderId === authUser._id
+                          ? authUser.profilePic || "/avatar.png"
+                          : selectedUser.profilePic || "/avatar.png"
+                      }
+                      alt="profile pic"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="chat-header mb-1 flex items-center gap-2">
-                <time className="text-xs opacity-50 ml-1">
-                  {formatMessageTime(message.createdAt)}
-                </time>
-                <button
-                  className="text-xs text-blue-500 hover:underline ml-2"
-                  onClick={() => setReplyTo(message)}
-                  title="Reply"
-                >
-                  Reply
-                </button>
-              </div>
-              <div className="chat-bubble flex flex-col max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg">
-                {message.replyTo && (
-                  <div className="bg-base-200 rounded p-2 mb-1 text-xs text-base-content/70 border-l-4 border-blue-400">
-                    <span className="font-semibold">Replying to:</span>{" "}
-                    <span className="break-words">
-                      {message.replyTo.text ||
-                        (message.replyTo.image ? "[Image]" : "")}
-                    </span>
-                    {message.replyTo.image && (
-                      <img
-                        src={message.replyTo.image}
-                        alt="Replied Attachment"
-                        className="max-w-[80px] sm:max-w-[100px] rounded-md mt-1"
-                      />
-                    )}
-                  </div>
-                )}
-                {message.image && (
-                  <img
-                    src={message.image}
-                    alt="Attachment"
-                    className="max-w-[150px] sm:max-w-[200px] rounded-md mb-2"
-                  />
-                )}
-                {message.text && (
-                  <p className="break-words whitespace-pre-wrap leading-relaxed">
-                    {message.text}
-                  </p>
-                )}
-                {/* Seen/Sent indicator for own messages */}
-                {message.senderId === authUser._id && (
-                  <div className="text-xs mt-1 text-right">
-                    {message.isSeen ? (
-                      <span className="text-green-600 font-bold">✓✓</span>
-                    ) : (
-                      <span className="text-gray-400">✓</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+                <div className="chat-header mb-1 flex items-center gap-2 flex-wrap">
+                  <time className="text-xs opacity-50 ml-1">
+                    {formatMessageTime(message.createdAt)}
+                  </time>
+                  <button
+                    className="text-xs text-blue-500 hover:underline"
+                    onClick={() => setReplyTo(message)}
+                    title="Reply"
+                  >
+                    Reply
+                  </button>
+                </div>
+                <div className="chat-bubble flex flex-col max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg break-words">
+                  {message.replyTo && (
+                    <div className="bg-base-200 rounded p-2 mb-1 text-xs text-base-content/70 border-l-4 border-blue-400">
+                      <span className="font-semibold">Replying to:</span>{" "}
+                      <span className="break-words">
+                        {message.replyTo.text ||
+                          (message.replyTo.image ? "[Image]" : "")}
+                      </span>
+                      {message.replyTo.image && (
+                        <img
+                          src={message.replyTo.image}
+                          alt="Replied Attachment"
+                          className="max-w-[80px] sm:max-w-[100px] rounded-md mt-1"
+                        />
+                      )}
+                    </div>
+                  )}
+                  {message.image && (
+                    <img
+                      src={message.image}
+                      alt="Attachment"
+                      className="max-w-full sm:max-w-[200px] rounded-md mb-2"
+                      loading="lazy"
+                    />
+                  )}
+                  {message.text && (
+                    <p className="break-words whitespace-pre-wrap leading-relaxed word-wrap overflow-wrap">
+                      {message.text}
+                    </p>
+                  )}
+                  {/* Seen/Sent indicator for own messages */}
+                  {message.senderId === authUser._id && (
+                    <div className="text-xs mt-1 text-right">
+                      {message.isPending ? (
+                        <span className="text-gray-400">Sending...</span>
+                      ) : message.isSeen ? (
+                        <span className="text-green-600 font-bold">✓✓</span>
+                      ) : (
+                        <span className="text-gray-400">✓</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
           {/* Anchor to scroll to */}
           <div ref={messageEndRef} />
         </div>
@@ -170,9 +212,29 @@ const ChatContainer = () => {
           </div>
         </div>
       )}
+      
+      {/* Scroll to bottom button */}
+      {!isNearBottom && (
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="absolute bottom-20 right-4 btn btn-circle btn-primary btn-sm shadow-lg z-10"
+          onClick={() => scrollToBottom(true, true)}
+          title="Scroll to bottom"
+        >
+          ↓
+        </motion.button>
+      )}
+      
       {/* Show reply preview above input */}
       {replyTo && (
-        <div className="flex items-start bg-base-200 p-2 rounded mb-2 mx-3 lg:mx-4 gap-2">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          className="flex items-start bg-base-200 p-2 rounded mb-2 mx-3 lg:mx-4 gap-2"
+        >
           <div className="flex-1 min-w-0">
             <span className="text-xs text-base-content/70 block mb-1">
               Replying to:
@@ -188,7 +250,7 @@ const ChatContainer = () => {
           >
             Cancel
           </button>
-        </div>
+        </motion.div>
       )}
       <MessageInput replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
     </div>

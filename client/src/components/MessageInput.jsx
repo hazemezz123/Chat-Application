@@ -81,7 +81,7 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
   }
 
   return (
-    <div className="p-3 lg:p-4 w-full relative bg-base-100 border-t border-base-300">
+    <div className="p-3 lg:p-4 w-full relative bg-base-100 border-t border-base-300 message-input-container">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
@@ -102,14 +102,26 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex items-center gap-2">
-          <input
-            type="text"
-            className="w-full input input-bordered rounded-lg text-base"
+      <form onSubmit={handleSendMessage} className="flex items-end gap-2 w-full">
+        <div className="flex-1 flex items-end gap-2 min-w-0">
+          <textarea
+            className="w-full input input-bordered rounded-lg text-base message-input resize-none overflow-hidden"
             placeholder="Type a message..."
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              // Auto-resize textarea
+              e.target.style.height = 'auto';
+              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage(e);
+              }
+            }}
+            rows="1"
+            style={{ minHeight: '40px', maxHeight: '120px' }}
           />
           <input
             type="file"
@@ -121,7 +133,7 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
 
           <button
             type="button"
-            className={`btn btn-circle btn-sm lg:btn-md
+            className={`btn btn-circle btn-sm lg:btn-md flex-shrink-0
                      ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
@@ -130,7 +142,7 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
         </div>
         <button
           type="submit"
-          className="btn btn-sm lg:btn-md btn-circle btn-primary"
+          className="btn btn-sm lg:btn-md btn-circle btn-primary flex-shrink-0"
           disabled={!text.trim() && !imagePreview}
         >
           <Send size={18} />

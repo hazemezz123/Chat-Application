@@ -14,12 +14,32 @@ html, body {
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* Prevent mobile viewport jumping */
+  width: 100%;
+}
+
+/* Fix for mobile viewport issues */
+@media screen and (max-width: 1024px) {
+  html, body {
+    position: fixed;
+    height: 100vh;
+    height: 100dvh;
+  }
+  
+  body.keyboard-open {
+    position: fixed;
+    height: 100vh;
+    height: 100dvh;
+  }
 }
 
 #root {
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
   width: 100%;
+  overflow-x: hidden;
+  /* Fix for mobile viewport stability */
+  position: relative;
 }
 
 /* Prevent horizontal scrolling on mobile */
@@ -41,6 +61,9 @@ html, body {
 input, textarea {
   -webkit-appearance: none;
   border-radius: 0;
+  /* Fix for mobile keyboard issues */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* Prevent zoom on input focus on iOS */
@@ -51,6 +74,12 @@ input, textarea {
   textarea {
     font-size: 16px;
   }
+  
+  /* Fix body scroll on mobile when keyboard opens */
+  body.keyboard-open {
+    position: fixed;
+    width: 100%;
+  }
 }
 
 /* Mobile chat container optimization */
@@ -58,11 +87,19 @@ input, textarea {
   .chat-container {
     height: calc(100vh - 4rem);
     height: calc(100dvh - 4rem);
+    /* Ensure proper overflow handling */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   
   .chat-messages {
     height: calc(100vh - 12rem);
     height: calc(100dvh - 12rem);
+    /* Better overflow handling for messages */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -79,6 +116,27 @@ input, textarea {
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+  /* Better text handling in bubbles */
+  white-space: pre-wrap;
+  max-width: 100%;
+}
+
+/* Responsive text input */
+.message-input-container {
+  /* Ensure input container doesn't overflow */
+  width: 100%;
+  max-width: 100%;
+}
+
+.message-input {
+  /* Responsive input field */
+  width: 100%;
+  min-height: 40px;
+  max-height: 120px;
+  resize: none;
+  overflow-y: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Mobile notification positioning */
@@ -87,5 +145,137 @@ input, textarea {
     right: -10px;
     left: auto;
     transform: translateX(0);
+    /* Ensure dropdown stays within viewport */
+    max-width: calc(100vw - 20px);
   }
+}
+
+/* Friend actions dropdown improvements */
+.friend-actions-dropdown {
+  /* Better positioning for mobile */
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 50;
+  min-width: 140px;
+  max-width: 200px;
+}
+
+@media screen and (max-width: 640px) {
+  .friend-actions-dropdown {
+    /* Adjust for mobile screens */
+    right: -10px;
+    min-width: 120px;
+    max-width: calc(100vw - 40px);
+  }
+}
+
+/* Prevent viewport shifting on mobile */
+@supports (-webkit-touch-callout: none) {
+  /* iOS specific fixes */
+  .mobile-container {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Chat message synchronization improvements */
+.message-list {
+  /* Optimized rendering for message lists */
+  contain: layout style;
+  will-change: scroll-position;
+}
+
+.message-item {
+  /* Prevent layout shifts */
+  contain: layout;
+}
+
+/* Loading states for better UX */
+.message-sending {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.message-failed {
+  opacity: 0.5;
+  border-left: 3px solid #ef4444;
+}
+
+/* Better text handling for all scenarios */
+.word-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.overflow-wrap {
+  overflow-wrap: anywhere;
+}
+
+/* Mobile-specific touch improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch device optimizations */
+  .btn {
+    min-height: 44px; /* Apple's recommended touch target size */
+  }
+  
+  .btn-sm {
+    min-height: 36px;
+  }
+  
+  .btn-circle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .btn-circle.btn-sm {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* Improve dropdown behavior on mobile */
+@media screen and (max-width: 640px) {
+  .dropdown-content {
+    /* Ensure dropdowns don't go off-screen */
+    max-width: calc(100vw - 20px);
+    left: auto;
+    right: 0;
+    transform: translateX(0);
+  }
+  
+  /* Better friend actions positioning */
+  .friend-actions-dropdown {
+    position: fixed;
+    right: 10px;
+    max-width: calc(100vw - 20px);
+  }
+}
+
+/* Performance optimizations */
+.message-list {
+  /* Enable hardware acceleration */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  /* Optimize for animations */
+  will-change: scroll-position;
+}
+
+/* Better focus states for accessibility */
+.btn:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Prevent text selection on UI elements */
+.btn,
+.navbar,
+.menu {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

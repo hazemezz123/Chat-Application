@@ -55,11 +55,11 @@ const FriendsPage = () => {
       case "requests":
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold mb-4">Received Requests</h3>
+            <h3 className="text-base font-semibold mb-3">Received Requests</h3>
             {friendRequests.received.length === 0 ? (
-              <div className="text-center py-8 text-base-content/60">
-                <UserPlus className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No pending friend requests</p>
+              <div className="text-center py-6 text-base-content/60">
+                <UserPlus className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No pending friend requests</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -68,17 +68,17 @@ const FriendsPage = () => {
                     key={request.from._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between p-4 bg-base-200 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-base-200 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={request.from.profilePic || "/avatar.png"}
                         alt={request.from.fullName}
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
                       />
                       <div>
-                        <h4 className="font-medium">{request.from.fullName}</h4>
-                        <p className="text-sm text-base-content/70">
+                        <h4 className="text-sm font-medium">{request.from.fullName}</h4>
+                        <p className="text-xs text-base-content/70">
                           {request.from.email}
                         </p>
                         <p className="text-xs text-base-content/50 flex items-center gap-1">
@@ -92,18 +92,18 @@ const FriendsPage = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => acceptFriendRequest(request.from._id)}
-                        className="btn btn-success btn-sm"
+                        className="btn btn-success btn-xs text-xs"
                         disabled={isLoading}
                       >
-                        <Check className="w-4 h-4" />
+                        <Check className="w-3 h-3" />
                         Accept
                       </button>
                       <button
                         onClick={() => rejectFriendRequest(request.from._id)}
-                        className="btn btn-error btn-sm"
+                        className="btn btn-error btn-xs text-xs"
                         disabled={isLoading}
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3 h-3" />
                         Reject
                       </button>
                     </div>
@@ -112,10 +112,10 @@ const FriendsPage = () => {
               </div>
             )}
 
-            <h3 className="text-lg font-semibold mb-4 mt-8">Sent Requests</h3>
+            <h3 className="text-base font-semibold mb-3 mt-6">Sent Requests</h3>
             {friendRequests.sent.length === 0 ? (
-              <div className="text-center py-8 text-base-content/60">
-                <p>No pending sent requests</p>
+              <div className="text-center py-6 text-base-content/60">
+                <p className="text-sm">No pending sent requests</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -124,17 +124,17 @@ const FriendsPage = () => {
                     key={request.to._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between p-4 bg-base-200 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-base-200 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={request.to.profilePic || "/avatar.png"}
                         alt={request.to.fullName}
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
                       />
                       <div>
-                        <h4 className="font-medium">{request.to.fullName}</h4>
-                        <p className="text-sm text-base-content/70">
+                        <h4 className="text-sm font-medium">{request.to.fullName}</h4>
+                        <p className="text-xs text-base-content/70">
                           {request.to.email}
                         </p>
                         <p className="text-xs text-base-content/50 flex items-center gap-1">
@@ -146,8 +146,8 @@ const FriendsPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 text-info">
-                      <Clock className="w-4 h-4" />
-                      <span className="text-sm">Pending</span>
+                      <Clock className="w-3 h-3" />
+                      <span className="text-xs">Pending</span>
                     </div>
                   </motion.div>
                 ))}
@@ -159,11 +159,11 @@ const FriendsPage = () => {
       case "friends":
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold mb-4">Your Friends</h3>
+            <h3 className="text-base font-semibold mb-3">Your Friends</h3>
             {friends.length === 0 ? (
-              <div className="text-center py-8 text-base-content/60">
-                <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No friends yet</p>
+              <div className="text-center py-6 text-base-content/60">
+                <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No friends yet</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -172,24 +172,24 @@ const FriendsPage = () => {
                     key={friend._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between p-4 bg-base-200 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-base-200 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={friend.profilePic || "/avatar.png"}
                         alt={friend.fullName}
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
                       />
                       <div>
-                        <h4 className="font-medium">{friend.fullName}</h4>
-                        <p className="text-sm text-base-content/70">
+                        <h4 className="text-sm font-medium">{friend.fullName}</h4>
+                        <p className="text-xs text-base-content/70">
                           {friend.email}
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={() => removeFriend(friend._id)}
-                      className="btn btn-error btn-sm"
+                      className="btn btn-error btn-xs text-xs"
                       disabled={isLoading}
                     >
                       Remove
@@ -204,11 +204,11 @@ const FriendsPage = () => {
       case "blocked":
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold mb-4">Blocked Users</h3>
+            <h3 className="text-base font-semibold mb-3">Blocked Users</h3>
             {blockedUsers.length === 0 ? (
-              <div className="text-center py-8 text-base-content/60">
-                <Shield className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No blocked users</p>
+              <div className="text-center py-6 text-base-content/60">
+                <Shield className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No blocked users</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -217,27 +217,27 @@ const FriendsPage = () => {
                     key={user._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between p-4 bg-base-200 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-base-200 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={user.profilePic || "/avatar.png"}
                         alt={user.fullName}
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
                       />
                       <div>
-                        <h4 className="font-medium">{user.fullName}</h4>
-                        <p className="text-sm text-base-content/70">
+                        <h4 className="text-sm font-medium">{user.fullName}</h4>
+                        <p className="text-xs text-base-content/70">
                           {user.email}
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={() => unblockUser(user._id)}
-                      className="btn btn-warning btn-sm"
+                      className="btn btn-warning btn-xs text-xs"
                       disabled={isLoading}
                     >
-                      <ShieldOff className="w-4 h-4" />
+                      <ShieldOff className="w-3 h-3" />
                       Unblock
                     </button>
                   </motion.div>
@@ -261,12 +261,12 @@ const FriendsPage = () => {
           className="bg-base-100 rounded-lg shadow-xl overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-primary text-primary-content p-6 border-b-2 border-primary-content">
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <Users className="w-8 h-8" />
+          <div className="bg-primary text-primary-content p-4 border-b-2 border-primary-content">
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Users className="w-6 h-6" />
               Friends Management
             </h1>
-            <p className="mt-2 opacity-90">
+            <p className="mt-1 text-sm opacity-90">
               Manage your friends, friend requests, and blocked users
             </p>
           </div>
@@ -277,17 +277,17 @@ const FriendsPage = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-6 py-4 text-center font-medium transition-colors relative ${
+                className={`flex-1 px-4 py-3 text-center text-sm font-medium transition-colors relative ${
                   activeTab === tab.id
                     ? "bg-primary text-primary-content"
                     : "hover:bg-base-200"
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
-                  <tab.icon className="w-5 h-5" />
-                  <span className="hidden sm:inline">{tab.label}</span>
+                <div className="flex items-center justify-center gap-1">
+                  <tab.icon className="w-4 h-4" />
+                  <span className="hidden sm:inline text-xs">{tab.label}</span>
                   {tab.count > 0 && (
-                    <span className="badge badge-sm">{tab.count}</span>
+                    <span className="badge badge-xs text-xs">{tab.count}</span>
                   )}
                 </div>
               </button>
@@ -295,10 +295,10 @@ const FriendsPage = () => {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4">
             {isLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="loading loading-spinner loading-lg"></div>
+              <div className="flex justify-center py-6">
+                <div className="loading loading-spinner loading-md"></div>
               </div>
             ) : (
               renderTabContent()

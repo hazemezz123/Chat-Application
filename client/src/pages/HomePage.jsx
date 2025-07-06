@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useChatStore } from "../store/useChatStore";
 import SideBar from "../components/SideBar";
 import NoChatSelected from "../components/NoChatSelected";
@@ -8,6 +8,17 @@ const HomePage = () => {
   const { selectedUser, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   
+  // Handle keyboard open/close on mobile
+  const handleViewportChange = useCallback(() => {
+    if (isMobile) {
+      const viewport = window.visualViewport;
+      if (viewport) {
+        const isKeyboardOpen = viewport.height < window.innerHeight * 0.75;
+        document.body.classList.toggle('keyboard-open', isKeyboardOpen);
+      }
+    }
+  }, [isMobile]);
+  
   useEffect(() => {
     subscribeToMessages();
     
@@ -15,21 +26,30 @@ const HomePage = () => {
       setIsMobile(window.innerWidth < 1024);
     };
     
+    // Handle viewport changes for mobile keyboard
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+    }
+    
     window.addEventListener('resize', handleResize);
     
     return () => {
       unsubscribeFromMessages();
       window.removeEventListener('resize', handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+      }
+      document.body.classList.remove('keyboard-open');
     };
-  }, [subscribeToMessages, unsubscribeFromMessages]);
+  }, [subscribeToMessages, unsubscribeFromMessages, handleViewportChange]);
   
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-base-200 w-full">
+    <div className="min-h-screen min-h-[100dvh] bg-base-200 w-full overflow-x-hidden">
       {/* Mobile Layout */}
       {isMobile ? (
-        <div className="h-[100dvh] pt-16 w-full">
+        <div className="h-[100dvh] pt-16 w-full mobile-container overflow-hidden">
           {selectedUser ? (
-            <div className="h-full w-full">
+            <div className="h-full w-full flex flex-col">
               <ChatContainer />
             </div>
           ) : (

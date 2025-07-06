@@ -81,7 +81,7 @@ const FriendActions = ({ user, relationshipStatus }) => {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute right-0 top-8 bg-base-100 shadow-lg rounded-lg border border-base-300 z-10 min-w-[120px]"
+                  className="absolute right-0 top-8 bg-base-100 shadow-lg rounded-lg border border-base-300 z-50 min-w-[120px] friend-actions-dropdown"
                 >
                   <button
                     onClick={(e) => handleAction("removeFriend", e)}
@@ -164,7 +164,7 @@ const FriendActions = ({ user, relationshipStatus }) => {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute right-0 top-8 bg-base-100 shadow-lg rounded-lg border border-base-300 z-10 min-w-[140px]"
+                  className="absolute right-0 top-8 bg-base-100 shadow-lg rounded-lg border border-base-300 z-50 min-w-[140px] friend-actions-dropdown"
                 >
                   <button
                     onClick={(e) => handleAction("sendRequest", e)}

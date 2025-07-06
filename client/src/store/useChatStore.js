@@ -50,18 +50,41 @@ export const useChatStore = create((set, get) => ({
       set({ isMessageLoading: false });
     }
   },
-  // optimize this one letter
+  // Optimized message sending with better synchronization
   sendMessage: async (messageData) => {
     const { messages, selectedUser } = get();
+    const tempId = `temp_${Date.now()}_${Math.random()}`;
+    const authUser = useAuthStore.getState().authUser;
+    
+    // Create optimistic message
+    const optimisticMessage = {
+      _id: tempId,
+      ...messageData,
+      senderId: authUser._id,
+      receiverId: selectedUser._id,
+      createdAt: new Date().toISOString(),
+      isPending: true,
+      isSeen: false
+    };
+    
+    // Immediately add optimistic message to UI
+    set({ messages: [...messages, optimisticMessage] });
+    
     try {
       const res = await axiosInstance.post(
-        `/messages/send/${selectedUser._id} `,
+        `/messages/send/${selectedUser._id}`,
         messageData
       );
-      set({ messages: [...messages, res.data] });
+      
+      // Replace optimistic message with real message
+      set((state) => ({
+        messages: state.messages.map(msg => 
+          msg._id === tempId ? { ...res.data, isPending: false } : msg
+        )
+      }));
+      
       // Mark messages as seen after sending a new message
       const socket = useAuthStore.getState().socket;
-      const authUser = useAuthStore.getState().authUser;
       if (socket && authUser?._id && selectedUser?._id) {
         socket.emit("markMessagesAsSeen", {
           senderId: selectedUser._id,
@@ -69,7 +92,11 @@ export const useChatStore = create((set, get) => ({
         });
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      // Remove failed message and show error
+      set((state) => ({
+        messages: state.messages.filter(msg => msg._id !== tempId)
+      }));
+      toast.error(error.response?.data?.message || "Failed to send message");
     }
   },
   subscribeToMessages: () => {
@@ -87,6 +114,13 @@ export const useChatStore = create((set, get) => ({
         selectedUser && newMessage.senderId === selectedUser._id;
 
       set((state) => {
+        // Check if this message is already in our list (to prevent duplicates)
+        const messageExists = state.messages.some(msg => 
+          msg._id === newMessage._id || 
+          (msg.tempId && msg.senderId === newMessage.senderId && 
+           Math.abs(new Date(msg.createdAt) - new Date(newMessage.createdAt)) < 1000)
+        );
+
         // If message is from another user and chat is not open, increase unreadCount
         const updatedUsers = state.users.map((user) => {
           if (
@@ -117,8 +151,14 @@ export const useChatStore = create((set, get) => ({
           });
         }
 
+        // Only add message if it doesn't exist and chat is open
+        let updatedMessages = state.messages;
+        if (isChatOpen && !messageExists) {
+          updatedMessages = [...state.messages, newMessage];
+        }
+
         return {
-          messages: isChatOpen ? [...state.messages, newMessage] : state.messages,
+          messages: updatedMessages,
           users: updatedUsers,
           unreadMessages: newUnreadMessages,
         };
