@@ -6,11 +6,25 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 export const getUserForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
-    const filteredUsers = await User.find({
+    const users = await User.find({
       _id: { $ne: loggedInUserId },
     }).select("-password");
-    console.log("req.user:", req.user);
-    res.status(200).json({ filteredUsers });
+
+    // Add unreadCount for each user
+    const usersWithUnreadCount = await Promise.all(
+      users.map(async (user) => {
+        const unreadCount = await Message.countDocuments({
+          senderId: user._id,
+          receiverId: loggedInUserId,
+          isSeen: false,
+        });
+        return {
+          ...user.toObject(),
+          unreadCount,
+        };
+      })
+    );
+    res.status(200).json({ filteredUsers: usersWithUnreadCount });
   } catch (error) {
     handleServerError(res, error, "getUserForSidebar controller ");
   }

@@ -5,11 +5,11 @@ const NoChatSelected = () => {
   const { authUser } = useAuthStore();
 
   return (
-    <div className="w-full flex flex-1 flex-col items-center justify-center p-16 bg-base-100/50">
+    <div className="w-full flex flex-1 flex-col items-center justify-center p-4 lg:p-16 bg-base-100/50">
       <div className="max-w-md text-center space-y-4">
         {/* Avatar Display */}
         <div className="avatar">
-          <div className="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+          <div className="w-20 lg:w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
             <img
               src={authUser?.profilePic || "/avatar.png"}
               alt="Your avatar"
@@ -18,7 +18,7 @@ const NoChatSelected = () => {
         </div>
 
         {/* Welcome Text */}
-        <h2 className="text-3xl font-bold">
+        <h2 className="text-2xl lg:text-3xl font-bold">
           Welcome, <span className="text-primary">{authUser?.fullName}!</span>
         </h2>
         <p className="text-base-content/70">
@@ -26,7 +26,7 @@ const NoChatSelected = () => {
         </p>
         <div className="flex items-center justify-center gap-2 text-base-content/60 mt-4">
           <MessageSquare className="w-5 h-5" />
-          <span>Select a conversation from your contacts to begin.</span>
+          <span className="text-sm lg:text-base">Select a conversation from your contacts to begin.</span>
         </div>
       </div>
     </div>

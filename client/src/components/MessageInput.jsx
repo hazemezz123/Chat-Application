@@ -56,14 +56,14 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
   };
 
   return (
-    <div className="p-4 w-full relative">
+    <div className="p-3 lg:p-4 w-full relative bg-base-100 border-t border-base-300">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+              className="w-16 h-16 lg:w-20 lg:h-20 object-cover rounded-lg border border-zinc-700"
             />
             <button
               onClick={removeImage}
@@ -81,7 +81,7 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
         <div className="flex-1 flex items-center gap-2">
           <input
             type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+            className="w-full input input-bordered rounded-lg text-base"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -96,7 +96,7 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
 
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle btn-sm
+            className={`btn btn-circle btn-sm lg:btn-md
                      ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
@@ -105,10 +105,10 @@ const MessageInput = ({ replyTo, onCancelReply }) => {
         </div>
         <button
           type="submit"
-          className="btn btn-sm btn-circle"
+          className="btn btn-sm lg:btn-md btn-circle btn-primary"
           disabled={!text.trim() && !imagePreview}
         >
-          <Send size={22} />
+          <Send size={18} />
         </button>
       </form>
     </div>

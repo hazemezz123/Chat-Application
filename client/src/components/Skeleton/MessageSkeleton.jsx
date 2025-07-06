@@ -3,7 +3,7 @@ const MessageSkeleton = () => {
   const skeletonMessages = Array(6).fill(null);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-2 lg:p-4 space-y-4">
       {skeletonMessages.map((_, idx) => (
         <div
           key={idx}
@@ -20,7 +20,7 @@ const MessageSkeleton = () => {
           </div>
 
           <div className="chat-bubble bg-transparent p-0">
-            <div className="skeleton h-16 w-[200px]" />
+            <div className="skeleton h-12 lg:h-16 w-[150px] lg:w-[200px]" />
           </div>
         </div>
       ))}

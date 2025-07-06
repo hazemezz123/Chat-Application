@@ -23,13 +23,13 @@ const App = () => {
 
   if (isCheckingAuth && !authUser) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center min-h-screen min-h-[100dvh]">
         <Loader className="size-10 animate-spin" />
       </div>
     );
   }
   return (
-    <div data-theme={theme}>
+    <div data-theme={theme} className="min-h-screen min-h-[100dvh] w-full">
       <Navbar />
       <Toaster position="top-right" />
 

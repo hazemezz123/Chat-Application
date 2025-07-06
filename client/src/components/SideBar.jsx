@@ -8,7 +8,7 @@ const Sidebar = () => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
     useChatStore();
 
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers, authUser, socket } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
@@ -19,22 +19,41 @@ const Sidebar = () => {
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
+  const handleSelectUser = (user) => {
+    setSelectedUser(user);
+
+    // Immediately reset unread count in the store
+    const currentState = useChatStore.getState();
+    const updatedUsers = currentState.users.map((u) =>
+      u._id === user._id ? { ...u, unreadCount: 0 } : u
+    );
+    useChatStore.setState({ users: updatedUsers });
+
+    if (socket && authUser?._id && user._id) {
+      socket.emit("markMessagesAsSeen", {
+        senderId: user._id,
+        receiverId: authUser._id,
+      });
+    }
+  };
+
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
     <aside
-      className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200"
+      initial={{ x: -300, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      className="h-full w-full lg:w-72 lg:max-w-sm border-r border-base-300 flex flex-col transition-all duration-200 bg-base-100"
     >
-      <div className="border-b border-base-300 w-full p-4">
-        <div className="flex items-center gap-2 max-lg:justify-center">
+      <div className="border-b border-base-300 w-full p-3 lg:p-4">
+        <div className="flex items-center gap-2 justify-center lg:justify-start">
           <Users className="size-6 flex-shrink-0" />
-          <span className="font-semibold text-lg hidden lg:block">
+          <span className="font-semibold text-lg block">
             Contacts
           </span>
         </div>
-        <div
-          className="mt-3 items-center gap-2 hidden lg:flex"
-        >
+        <div className="mt-3 items-center gap-2 flex justify-center lg:justify-start">
           <label className="cursor-pointer flex items-center gap-2">
             <input
               type="checkbox"
@@ -47,11 +66,11 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <div className="overflow-y-auto w-full py-3">
+      <div className="overflow-y-auto w-full py-3 smooth-scroll">
         {filteredUsers.map((user) => (
           <button
             key={user._id}
-            onClick={() => setSelectedUser(user)}
+            onClick={() => handleSelectUser(user)}
             className={`
               w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors
@@ -62,28 +81,25 @@ const Sidebar = () => {
               }
             `}
           >
-            <div
-              className="relative mx-auto lg:mx-0"
-            >
+            <div className="relative flex-shrink-0">
               <img
                 src={user.profilePic || "/avatar.png"}
                 alt={user.name}
                 className="size-12 object-cover rounded-full"
               />
               {onlineUsers.includes(user._id) && (
-                <span
-                  className="absolute bottom-0 right-0 size-3 bg-green-500
-                  animate-pulse 
-                  rounded-full ring-2 ring-zinc-900"
-                />
+                <span className="absolute bottom-0 right-0 size-3 bg-green-500 animate-pulse rounded-full ring-2 ring-zinc-900" />
+              )}
+              {user.unreadCount > 0 && (
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+                  {user.unreadCount > 99 ? "99+" : user.unreadCount}
+                </div>
               )}
             </div>
 
-            {/* User info - only visible on larger screens */}
-            <div
-              className="text-left min-w-0 hidden lg:block"
-            >
-              <div className="font-medium truncate">{user.fullName}</div>
+            {/* User info - visible on all screens but responsive */}
+            <div className="text-left min-w-0 flex-1">
+              <div className="font-medium truncate text-base">{user.fullName}</div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </div>

@@ -1,3 +1,91 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Mobile optimization */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  width: 100%;
+}
+
+/* Prevent horizontal scrolling on mobile */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scrolling for mobile */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Input improvements for mobile */
+input, textarea {
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+/* Prevent zoom on input focus on iOS */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Mobile chat container optimization */
+@media screen and (max-width: 1024px) {
+  .chat-container {
+    height: calc(100vh - 4rem);
+    height: calc(100dvh - 4rem);
+  }
+  
+  .chat-messages {
+    height: calc(100vh - 12rem);
+    height: calc(100dvh - 12rem);
+  }
+}
+
+/* Text wrapping utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Chat bubble improvements */
+.chat-bubble {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Mobile notification positioning */
+@media screen and (max-width: 640px) {
+  .notification-dropdown {
+    right: -10px;
+    left: auto;
+    transform: translateX(0);
+  }
+}
