@@ -27,17 +27,17 @@ const ChatContainer = () => {
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [pendingMessages, setPendingMessages] = useState([]);
 
-  // Improved scroll to bottom with better UX
-  const scrollToBottom = useCallback((smooth = true, force = false) => {
-    if (messageEndRef.current && (isNearBottom || force)) {
+  // Simple scroll to bottom
+  const scrollToBottom = useCallback((smooth = true) => {
+    if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ 
         behavior: smooth ? "smooth" : "auto",
         block: "end"
       });
     }
-  }, [isNearBottom]);
+  }, []);
 
-  // Check if user is near bottom of messages
+  // Check if user is near bottom of messages (for scroll button visibility)
   const handleScroll = useCallback(() => {
     if (messagesContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
@@ -46,21 +46,28 @@ const ChatContainer = () => {
     }
   }, []);
 
-  // Scroll to bottom when messages change, but only if user was already near bottom
+  // Only auto-scroll for user's own messages
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      // Always scroll to bottom for new messages from current user or if near bottom
-      if (lastMessage?.senderId === authUser?._id || isNearBottom) {
-        scrollToBottom(true, true);
+      
+      // Only auto-scroll for your own messages (so you see what you sent)
+      const isFromCurrentUser = lastMessage?.senderId === authUser?._id;
+      
+      if (isFromCurrentUser) {
+        // Small delay to ensure message is rendered
+        setTimeout(() => {
+          scrollToBottom(true);
+        }, 50);
       }
     }
-  }, [messages, scrollToBottom, authUser?._id, isNearBottom]);
+  }, [messages, scrollToBottom, authUser?._id]);
 
   useEffect(() => {
     // Only fetch messages if a user is selected
     if (selectedUser?._id) {
       getMessages(selectedUser._id);
+      setIsNearBottom(true);
     }
   }, [selectedUser?._id, getMessages]);
 
@@ -213,14 +220,14 @@ const ChatContainer = () => {
         </div>
       )}
       
-      {/* Scroll to bottom button */}
+      {/* Scroll to bottom button - hidden on mobile */}
       {!isNearBottom && (
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="absolute bottom-20 right-4 btn btn-circle btn-primary btn-sm shadow-lg z-10"
-          onClick={() => scrollToBottom(true, true)}
+          className="hidden lg:block absolute bottom-20 right-4 btn btn-circle btn-primary btn-sm shadow-lg z-10"
+          onClick={() => scrollToBottom(true)}
           title="Scroll to bottom"
         >
           ↓
